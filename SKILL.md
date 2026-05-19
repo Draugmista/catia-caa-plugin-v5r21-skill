@@ -10,11 +10,12 @@ description: Create, compile, install, run, and debug CATIA V5 CAA RADE plugins 
 Use this skill for small CATIA V5 CAA demo plugins and local smoke tests.
 
 1. Inspect the existing workspace first: look for `*.dico`, `Imakefile.mk`, `IdentityCard.h`, `*.CATNls`, `Start_*.bat`, `Install_config_*`, and any working example.
-2. Scaffold or modify a CAA framework/module using the local RADE layout: `<Project>\<Framework>\<Module>.m\LocalInterfaces`, `src`, `CNext\code\dictionary`, `CNext\resources\msgcatalog`, and `IdentityCard`.
-3. Register add-ins in a `.dico` file and make sure command header ids, class names, module names, and NLS files match exactly.
-4. Compile with the machine's RADE/Visual Studio environment, then verify that the DLL and dictionary were copied into the project's runtime `win_b64` tree.
-5. Launch CATIA through `CATSTART -env -direnv`, never by bare `CNEXT.exe` with only plugin paths.
-6. Verify in CATIA by opening the target workbench/document type and checking logs, process state, and CATIA `error.log`.
+2. Search the installed CAA documentation and examples under `C:\DassaultSystemes\CatiaV5R21\CAADoc` before writing or changing CAA code. Prefer same-version examples over memory for APIs, link modules, `.dico`, `CNext`, and `Imakefile.mk` details.
+3. Scaffold or modify a CAA framework/module using the local RADE layout: `<Project>\<Framework>\<Module>.m\LocalInterfaces`, `src`, `CNext\code\dictionary`, `CNext\resources\msgcatalog`, and `IdentityCard`.
+4. Register add-ins in a `.dico` file and make sure command header ids, class names, module names, and NLS files match exactly.
+5. Compile with the machine's RADE/Visual Studio environment, then verify that the DLL and dictionary were copied into the project's runtime `win_b64` tree.
+6. Launch CATIA through `CATSTART -env -direnv`, never by bare `CNEXT.exe` with only plugin paths.
+7. Verify in CATIA by opening the target workbench/document type and checking logs, process state, and CATIA `error.log`.
 
 For compact code patterns and local commands, read `references/v5r21-workflow.md`.
 
@@ -25,8 +26,28 @@ For compact code patterns and local commands, read `references/v5r21-workflow.md
 - Working tree for demos: `C:\CatiaTest\LYD_GG_DESIGN`
 - Build env batch observed on this machine: `C:\DassaultSystemes\caa_work\mytest\test1\ToolsData\VisualStudio2008\vcenv.bat`
 - Base CATIA environment file: `C:\ProgramData\DassaultSystemes\CATEnv\CATIA_P3.V5R21.B21.txt`
+- Official CAA docs/examples: `C:\DassaultSystemes\CatiaV5R21\CAADoc`
 
 Confirm paths before using them. Prefer project-local CATIA env files under `<Project>\CATEnv` so tests do not pollute the user's global CATIA environment.
+
+## Use Installed CAA Docs First
+
+Before implementing a feature, use `rg` against `CAADoc` to find official V5R21 examples that match the target API or workbench. Good first searches:
+
+```powershell
+rg -n "CATIPRDWorkshopAddin|CATIWorkbenchAddin|CATStateCommand|CATDlgNotify" C:\DassaultSystemes\CatiaV5R21\CAADoc
+rg -n "CATCreateClass|CATImplementClass|MacDeclareHeader|TIE_CAT" C:\DassaultSystemes\CatiaV5R21\CAADoc
+rg -n "CATHybridShapeFactory|CATIGSMFactory|CreateLine|CreatePoint" C:\DassaultSystemes\CatiaV5R21\CAADoc
+```
+
+Useful areas include:
+
+- `CAAApplicationFrame.edu` for command headers, add-ins, workbenches, workshops, menus, and toolbars.
+- `CAADialog.edu` and `CAADialogEngine.edu` for dialogs and state-command interactions.
+- `CAAProductStructure.edu`, `CAAAssemblyUI.edu`, and Product Structure related examples for assembly/product workbench behavior.
+- `CAAGSMInterfaces.edu`, `CAAMechanicalModeler.edu`, `CAAObjectSpecsModeler.edu`, and geometry/modeler docs for creating or editing CATPart geometry.
+
+When a matching example exists, copy its architectural pattern rather than inventing one. Use the example's `Imakefile.mk` as the starting point for link modules, then trim only after the build is stable.
 
 ## Implementation Rules
 

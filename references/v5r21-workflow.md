@@ -1,5 +1,33 @@
 # CATIA V5R21 CAA Local Workflow
 
+## Start With Installed Documentation
+
+This machine includes official CAA V5R21 documentation and examples under:
+
+```text
+C:\DassaultSystemes\CatiaV5R21\CAADoc
+```
+
+Use these examples as the primary reference before writing code. They are same-version sources for CAA idioms, link modules, command headers, dictionary registration, `CNext` resources, and RADE project layout.
+
+Search examples with `rg`:
+
+```powershell
+rg -n "CATIPRDWorkshopAddin" C:\DassaultSystemes\CatiaV5R21\CAADoc
+rg -n "CATStateCommand" C:\DassaultSystemes\CatiaV5R21\CAADoc
+rg -n "CATDlgNotify" C:\DassaultSystemes\CatiaV5R21\CAADoc
+rg -n "CATHybridShapeFactory|CATIGSMFactory" C:\DassaultSystemes\CatiaV5R21\CAADoc
+```
+
+Representative places to look:
+
+- `C:\DassaultSystemes\CatiaV5R21\CAADoc\CAAApplicationFrame.edu` for add-ins, command headers, workbenches, workshops, menus, and toolbar patterns.
+- `C:\DassaultSystemes\CatiaV5R21\CAADoc\CAADialog.edu` and `CAADialogEngine.edu` for dialog and state-command examples.
+- `C:\DassaultSystemes\CatiaV5R21\CAADoc\CAAAssemblyUI.edu` and Product Structure related docs for product/assembly UI integration.
+- Geometry/modeler docs such as `CAAGSMInterfaces.edu`, `CAAMechanicalModeler.edu`, and `CAAObjectSpecsModeler.edu` for point/line/feature creation patterns.
+
+When a matching official sample has an `Imakefile.mk`, use it to infer required link modules. CAA link dependencies are version-sensitive; avoid guessing them from class names alone.
+
 ## Minimal Product Structure Button
 
 Use this pattern for a demo button in Product Structure / Assembly.
