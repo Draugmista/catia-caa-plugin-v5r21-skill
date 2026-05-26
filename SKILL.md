@@ -76,6 +76,34 @@ Expected runtime artifacts:
 
 If compilation starts failing in `CATCommandHeader.h` after previous experiments, inspect the file state and any backups before changing it. This is a global CATIA header and should not be silently edited.
 
+## Build Preflight And Pitfalls
+
+Before running `mkmk`, verify root control files and direct dependencies:
+
+- `CATIAV5Level.lvl` must be the real CAA level header, not a tiny placeholder or missing file.
+- `Install_config_win_b64` should point to the CATIA install, usually:
+  `<Install> compatible`
+  `C:\DassaultSystemes\CatiaV5R21`
+- `IdentityCard.h` must declare each framework used by `LINK_WITH` as a direct prerequisite. If `mkmk` says a linked module is ignored because it is not a direct prerequisite, add the owning framework to `IdentityCard.h`.
+- A `Start_*.bat` file may be empty in unfinished projects; do not treat its presence as proof that runtime launch is ready.
+
+Do not trust `mkmk` exit code alone. It may return success while printing build failures. Always scan output for `mkmk-ERROR`, `make-ERROR`, `syst-ERROR`, `fatal error`, and `error C`.
+
+For V5R21-specific C++ issues:
+
+- Check installed headers before using UI constants. `CATGRID_VCENTER` is not available in this V5R21 install; use supported constants such as `CATGRID_LEFT`, `CATGRID_RIGHT`, `CATGRID_CENTER`, and `CATGRID_4SIDES`.
+- Use `CATListOfCATBaseUnknown.h` for `CATListValCATBaseUnknown_var`; do not invent include names.
+- Avoid non-ASCII C++ string literals with VS2008/mkmk unless the source encoding is proven compatible. Prefer localized UI text in `.CATNls`; use ASCII literals when the priority is getting a clean DLL build.
+
+After a successful link, verify runtime artifacts, not just object files:
+
+- `<Project>\win_b64\code\bin\<Module>.dll`
+- `<Project>\win_b64\code\lib\<Module>.lib`
+- `<Project>\win_b64\code\dictionary\<Framework>.dico`
+- `<Project>\win_b64\resources\msgcatalog\...`
+
+If `.dico` was not copied into `win_b64\code\dictionary`, copy it from `<Framework>\CNext\code\dictionary`; without it CATIA will not discover the add-in even when the DLL exists.
+
 ## Launch And Test
 
 Create a project-local env file by copying the base CATIA env and prepending plugin paths:

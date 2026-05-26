@@ -162,11 +162,71 @@ cd /d C:\CatiaTest\LYD_GG_DESIGN\<ProjectName>
 C:\DassaultSystemes\RADEv5r21\intel_a\code\command\mkmk.bat -a -u
 ```
 
+## Build Preflight
+
+Check these files before compiling a copied or newly generated project:
+
+```powershell
+Get-Item <Project>\CATIAV5Level.lvl
+Get-Content <Project>\Install_config_win_b64
+Get-Content <Project>\<Framework>\IdentityCard\IdentityCard.h
+Get-Content <Project>\<Framework>\<Module>.m\Imakefile.mk
+```
+
+Known-good `Install_config_win_b64` shape:
+
+```text
+<Install> compatible
+C:\DassaultSystemes\CatiaV5R21
+```
+
+If `mkmk` reports:
+
+```text
+unable to initialize macro level
+Bad file descriptor
+The script of the identity card cannot be load
+```
+
+then inspect `CATIAV5Level.lvl` and `Install_config_win_b64` first. For a local demo, copying these from a known-good CAA project targeting the same CATIA install is often the quickest repair.
+
+Every framework named in `LINK_WITH` must be backed by an `AddPrereqComponent(...)` entry for its owning framework in `IdentityCard.h`. Example: linking `CATObjectSpecsModeler` requires:
+
+```cpp
+AddPrereqComponent("ObjectSpecsModeler", Public);
+```
+
+## Build Failure Triage
+
+`mkmk` can print errors while returning process exit code 0. Treat the build as failed if output contains:
+
+```text
+mkmk-ERROR
+make-ERROR
+syst-ERROR
+fatal error
+error C
+```
+
+Common V5R21 fixes seen on this machine:
+
+- `CATGRID_VCENTER` is not defined in `Dialog\PublicInterfaces\CATDlgGridConstraints.h`; use `CATGRID_LEFT`, `CATGRID_RIGHT`, `CATGRID_CENTER`, or `CATGRID_4SIDES`.
+- `CATListValCATBaseUnknown.h` does not exist; use `CATListOfCATBaseUnknown.h` for `CATListValCATBaseUnknown_var`.
+- `warning C4819` plus `error C2001: 常量中有换行符` around UI text usually means VS2008 is reading source text with the wrong encoding. Prefer moving Chinese UI text to `.CATNls`; otherwise use ASCII C++ literals for a clean compile.
+- If link steps run but object files are missing, fix earlier compile errors first; the link errors are secondary.
+
 After build, verify:
 
 ```powershell
 Test-Path C:\CatiaTest\LYD_GG_DESIGN\<ProjectName>\win_b64\code\bin\<Module>.dll
 Test-Path C:\CatiaTest\LYD_GG_DESIGN\<ProjectName>\win_b64\code\dictionary\<Framework>.dico
+```
+
+If the dictionary test fails but the source dictionary exists, copy it:
+
+```powershell
+New-Item -ItemType Directory -Force -Path <Project>\win_b64\code\dictionary
+Copy-Item <Project>\<Framework>\CNext\code\dictionary\<Framework>.dico <Project>\win_b64\code\dictionary\<Framework>.dico -Force
 ```
 
 ## CATSTART Test Environment
