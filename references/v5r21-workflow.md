@@ -162,6 +162,18 @@ cd /d C:\CatiaTest\LYD_GG_DESIGN\<ProjectName>
 C:\DassaultSystemes\RADEv5r21\intel_a\code\command\mkmk.bat -a -u
 ```
 
+Equivalent one-shot form:
+
+```bat
+cmd /c "call C:\DassaultSystemes\caa_work\mytest\test1\ToolsData\VisualStudio2008\vcenv.bat && cd /d C:\CatiaTest\LYD_GG_DESIGN\<ProjectName> && C:\DassaultSystemes\RADEv5r21\intel_a\code\command\mkmk.bat -a -u"
+```
+
+Read this as three separate stages:
+
+1. `vcenv.bat` sets the VS2008/RADE build environment (`INCLUDE`, `LIB`, `PATH`, `Mkmk*`, `mkcs*`, and related variables).
+2. `cd /d <Project>` selects the RADE project root. This directory must contain `CATIAV5Level.lvl`, `Install_config_win_b64`, and the framework folders.
+3. `mkmk.bat -a -u` builds all modules and asks RADE to update the runtime view. Do not assume `-u` copied everything; verify `win_b64` artifacts afterward.
+
 ## Build Preflight
 
 Check these files before compiling a copied or newly generated project:
@@ -207,6 +219,14 @@ syst-ERROR
 fatal error
 error C
 ```
+
+If output contains a license message such as:
+
+```text
+RequestLicensesFromSettings: error: the requested licenses do not authorize the given product, MAB.
+```
+
+then the build likely stopped during RADE/CATIA license setup before source compilation. Check license settings and requested products first; do not treat this as a C++ compile or link failure.
 
 Common V5R21 fixes seen on this machine:
 

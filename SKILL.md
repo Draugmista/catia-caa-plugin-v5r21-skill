@@ -68,6 +68,18 @@ cd /d C:\CatiaTest\LYD_GG_DESIGN\<ProjectName>
 C:\DassaultSystemes\RADEv5r21\intel_a\code\command\mkmk.bat -a -u
 ```
 
+For one-shot automation, it is OK to chain the same steps through `cmd /c`:
+
+```bat
+cmd /c "call C:\DassaultSystemes\caa_work\mytest\test1\ToolsData\VisualStudio2008\vcenv.bat && cd /d C:\CatiaTest\LYD_GG_DESIGN\<ProjectName> && C:\DassaultSystemes\RADEv5r21\intel_a\code\command\mkmk.bat -a -u"
+```
+
+Interpret the command in stages:
+
+- `vcenv.bat` prepares VS2008/RADE variables such as `INCLUDE`, `LIB`, `PATH`, `Mkmk*`, and `mkcs*`.
+- `cd /d <Project>` must land in the RADE project root containing `CATIAV5Level.lvl`, `Install_config_win_b64`, and framework folders.
+- `mkmk.bat -a -u` builds all modules and requests runtime-view update, but `-u` does not guarantee every runtime artifact was copied. Always verify DLL, library, dictionary, and message catalogs after the build.
+
 Expected runtime artifacts:
 
 - `<Project>\win_b64\code\bin\<Module>.dll`
@@ -88,6 +100,8 @@ Before running `mkmk`, verify root control files and direct dependencies:
 - A `Start_*.bat` file may be empty in unfinished projects; do not treat its presence as proof that runtime launch is ready.
 
 Do not trust `mkmk` exit code alone. It may return success while printing build failures. Always scan output for `mkmk-ERROR`, `make-ERROR`, `syst-ERROR`, `fatal error`, and `error C`.
+
+Differentiate license/setup failures from C++ compile failures. If output contains `RequestLicensesFromSettings` and text like `the requested licenses do not authorize the given product, MAB`, the command may not have reached source compilation; inspect CATIA/RADE license settings instead of changing C++ code.
 
 For V5R21-specific C++ issues:
 
