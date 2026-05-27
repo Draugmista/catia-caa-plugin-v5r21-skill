@@ -103,6 +103,30 @@ Do not trust `mkmk` exit code alone. It may return success while printing build 
 
 Differentiate license/setup failures from C++ compile failures. If output contains `RequestLicensesFromSettings` and text like `the requested licenses do not authorize the given product, MAB`, the command may not have reached source compilation; inspect CATIA/RADE license settings instead of changing C++ code.
 
+On this machine, `mkmk` can fail the MAB authorization check under a sandbox/offline execution user while succeeding as the real Windows user. Before treating `MAB` as a project or C++ problem, retry the same command with real-user/escalated execution and compare shell fingerprints. A successful environment observed here has:
+
+- `whoami=desktop-c64rlob\carcharoth`
+- `USERNAME=Carcharoth`
+- `USERPROFILE=C:\Users\Carcharoth`
+- `RADECATSettingPath=C:\Users\Carcharoth\AppData\Roaming\DassaultSystemes\CATSettings\RADE`
+- `__COMPAT_LAYER=ElevateCreateProcess`
+- `MkmkROOT_PATH=C:\DASSAU~1\RADEV5~1\intel_a`
+- `MkmkINSTALL_PATH=C:\DASSAU~1\RADEV5~1`
+
+When comparing two agents/shells, use delayed expansion so values after `vcenv.bat` are not hidden by early `%VAR%` expansion:
+
+```bat
+cmd /v:on /c "whoami && echo USERNAME=!USERNAME! && echo USERPROFILE=!USERPROFILE! && echo CD=!CD! && echo before_RADECATSettingPath=!RADECATSettingPath! && echo before_COMPAT=!__COMPAT_LAYER! && call C:\DassaultSystemes\caa_work\mytest\test1\ToolsData\VisualStudio2008\vcenv.bat >nul && echo after_RADECATSettingPath=!RADECATSettingPath! && echo after_COMPAT=!__COMPAT_LAYER! && echo TCK_TMP_FILE=!TCK_TMP_FILE! && echo MkmkROOT_PATH=!MkmkROOT_PATH! && echo MkmkINSTALL_PATH=!MkmkINSTALL_PATH! && dir /a "!RADECATSettingPath!""
+```
+
+For reproducible diagnosis, redirect build logs and scan them before drawing conclusions:
+
+```bat
+cmd /c "call C:\DassaultSystemes\caa_work\mytest\test1\ToolsData\VisualStudio2008\vcenv.bat >nul && cd /d <Project> && C:\DassaultSystemes\RADEv5r21\intel_a\code\command\mkmk.bat -a -u > mkmk_build.log 2>&1"
+```
+
+If `mkmk` succeeds but DLL timestamps do not change, it may have decided everything is up to date. Compare source, object, and runtime artifact timestamps such as `<Module>.cpp`, `Objects\win_b64\<Module>.obj`, and `win_b64\code\bin\<Module>.dll` before assuming a change was compiled.
+
 For V5R21-specific C++ issues:
 
 - Check installed headers before using UI constants. `CATGRID_VCENTER` is not available in this V5R21 install; use supported constants such as `CATGRID_LEFT`, `CATGRID_RIGHT`, `CATGRID_CENTER`, and `CATGRID_4SIDES`.
@@ -146,3 +170,4 @@ If CATIA opens as a gray blank frame with no menus/toolbars, suspect startup env
 - Check CATIA log: `%LOCALAPPDATA%\DassaultSystemes\CATTemp\error.log`
 - If the plugin button is missing but CATIA UI is normal, inspect `.dico`, add-in interface, NLS/header ids, and whether the target workbench is active.
 - If CATIA exits normally after launch, verify the user did not close it and inspect the latest `error.log` line for `normal_end` vs `abend`.
+
