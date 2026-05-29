@@ -1,6 +1,6 @@
 ---
 name: catia-caa-plugin
-description: Create, compile, install, run, and debug CATIA V5 CAA RADE plugins on this Windows CATIA V5R21 setup. Use when Codex is asked to write a CAA add-in, command, toolbar button, CATIA plugin, CNext/CNEXT extension, dico registration, mkmk build, CATSTART launch script, temporary install, locate official same-version CAA docs/examples, or diagnose CATIA blank gray startup, missing toolbar, frozen UI, build artifact, license, dictionary, or NLS failures.
+description: Create, compile, install, run, and debug CATIA V5 CAA RADE plugins on this Windows CATIA V5R21 setup. Use when Codex is asked to write a CAA add-in, command, toolbar button, Part workbench add-in, CATIA plugin, CNext/CNEXT extension, dico registration, mkmk build, CATSTART launch script, temporary install, locate official same-version CAA docs/examples, handle CATIA NLS encoding, create geometry or pad-to-surface features, or diagnose CATIA blank gray startup, missing toolbar, frozen UI, build artifact, license, dictionary, or NLS failures.
 ---
 
 # CATIA CAA Plugin
@@ -17,7 +17,7 @@ Use this skill for small CATIA V5 CAA demo plugins and local smoke tests.
 6. Launch CATIA through `CATSTART -env -direnv`, never by bare `CNEXT.exe` with only plugin paths.
 7. Verify in CATIA by opening the target workbench/document type and checking logs, process state, and CATIA `error.log`.
 
-For compact code patterns and local commands, read `references/v5r21-workflow.md`. For task-to-document navigation across ApplicationFrame, Dialog, DialogEngine, Product Structure, GSM, Mechanical Modeler, and Object Specs Modeler topics, read `references/caa-doc-navigation.md`. For symptom-driven debugging, read `references/troubleshooting.md`.
+For compact code patterns and local commands, read `references/v5r21-workflow.md`. For task-to-document navigation across ApplicationFrame, Dialog, DialogEngine, Product Structure, GSM, Mechanical Modeler, and Object Specs Modeler topics, read `references/caa-doc-navigation.md`. For Part workbench add-ins, Chinese NLS, model selection agents, GSM point coordinates, pad-to-surface features, or batch geometry safety, read `references/part-workbench-geometry.md`. For symptom-driven debugging, read `references/troubleshooting.md`.
 
 ## Bundled Helpers
 
@@ -60,6 +60,7 @@ When a matching example exists, copy its architectural pattern rather than inven
 - Use Chinese for custom UI labels/messages unless the user requests English or a CATIA contract requires exact English ids.
 - Keep command/header ids ASCII and stable: e.g. `HelloWorldCmdHeader`, `HelloWorldAddin`, `HelloWorldCmd`.
 - For a Product Structure / Assembly toolbar, implement `CATIPRDWorkshopAddin`, tie it with `TIE_CATIPRDWorkshopAddin`, and register in `.dico` as `AddinClass CATIPRDWorkshopAddin libModuleName`.
+- For a Part workbench toolbar, implement `CATIPrtCfgAddin`; for multiple buttons under one toolbar, use one `SetAccessChild` followed by `SetAccessNext` siblings.
 - Use `CATStateCommand` one-shot commands for simple button actions; call `RequestDelayedDestruction()` after showing a dialog or writing a test log.
 - Add only the needed link modules in `Imakefile.mk`; for a simple dialog command include `ApplicationFrame`, `CATDialogEngine`, `CATPrsWksPRDWorkshop`, and `ProductStructureUIUUID` when targeting PRDWorkshop.
 - Do not modify Dassault public headers unless the user explicitly permits it. If a vendor header is already known to be corrupted, back it up before repair and restore it when asked.
@@ -137,7 +138,7 @@ For V5R21-specific C++ issues:
 
 - Check installed headers before using UI constants. `CATGRID_VCENTER` is not available in this V5R21 install; use supported constants such as `CATGRID_LEFT`, `CATGRID_RIGHT`, `CATGRID_CENTER`, and `CATGRID_4SIDES`.
 - Use `CATListOfCATBaseUnknown.h` for `CATListValCATBaseUnknown_var`; do not invent include names.
-- Avoid non-ASCII C++ string literals with VS2008/mkmk unless the source encoding is proven compatible. Prefer localized UI text in `.CATNls`; use ASCII literals when the priority is getting a clean DLL build.
+- Avoid non-ASCII C++ string literals with VS2008/mkmk unless the source encoding is proven compatible. Prefer localized UI text in `.CATNls`; on Chinese Windows/CATIA V5R21, Chinese `.CATNls` files may need GBK/ANSI rather than UTF-8 for correct toolbar display.
 
 After a successful link, verify runtime artifacts, not just object files:
 
