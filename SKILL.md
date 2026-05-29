@@ -1,6 +1,6 @@
 ---
 name: catia-caa-plugin
-description: Create, compile, install, run, and debug CATIA V5 CAA RADE plugins on this Windows CATIA V5R21 setup. Use when Codex is asked to write a CAA add-in, command, toolbar button, CATIA plugin, CNext/CNEXT extension, dico registration, mkmk build, CATSTART launch script, temporary install, or to diagnose CATIA blank gray startup, missing toolbar, frozen UI, or plugin load failures.
+description: Create, compile, install, run, and debug CATIA V5 CAA RADE plugins on this Windows CATIA V5R21 setup. Use when Codex is asked to write a CAA add-in, command, toolbar button, CATIA plugin, CNext/CNEXT extension, dico registration, mkmk build, CATSTART launch script, temporary install, locate official same-version CAA docs/examples, or diagnose CATIA blank gray startup, missing toolbar, frozen UI, build artifact, license, dictionary, or NLS failures.
 ---
 
 # CATIA CAA Plugin
@@ -10,14 +10,20 @@ description: Create, compile, install, run, and debug CATIA V5 CAA RADE plugins 
 Use this skill for small CATIA V5 CAA demo plugins and local smoke tests.
 
 1. Inspect the existing workspace first: look for `*.dico`, `Imakefile.mk`, `IdentityCard.h`, `*.CATNls`, `Start_*.bat`, `Install_config_*`, and any working example.
-2. Search the installed CAA documentation and examples under `C:\DassaultSystemes\CatiaV5R21\CAADoc` before writing or changing CAA code. Prefer same-version examples over memory for APIs, link modules, `.dico`, `CNext`, and `Imakefile.mk` details.
+2. Search the installed CAA documentation and examples under `C:\DassaultSystemes\CatiaV5R21\CAADoc` before writing or changing CAA code. If the task category is unclear, use `references/caa-doc-navigation.md` to map the request to the right official docs and `.edu` examples first. Prefer same-version examples over memory for APIs, link modules, `.dico`, `CNext`, and `Imakefile.mk` details.
 3. Scaffold or modify a CAA framework/module using the local RADE layout: `<Project>\<Framework>\<Module>.m\LocalInterfaces`, `src`, `CNext\code\dictionary`, `CNext\resources\msgcatalog`, and `IdentityCard`.
 4. Register add-ins in a `.dico` file and make sure command header ids, class names, module names, and NLS files match exactly.
 5. Compile with the machine's RADE/Visual Studio environment, then verify that the DLL and dictionary were copied into the project's runtime `win_b64` tree.
 6. Launch CATIA through `CATSTART -env -direnv`, never by bare `CNEXT.exe` with only plugin paths.
 7. Verify in CATIA by opening the target workbench/document type and checking logs, process state, and CATIA `error.log`.
 
-For compact code patterns and local commands, read `references/v5r21-workflow.md`.
+For compact code patterns and local commands, read `references/v5r21-workflow.md`. For task-to-document navigation across ApplicationFrame, Dialog, DialogEngine, Product Structure, GSM, Mechanical Modeler, and Object Specs Modeler topics, read `references/caa-doc-navigation.md`. For symptom-driven debugging, read `references/troubleshooting.md`.
+
+## Bundled Helpers
+
+- Use `scripts/check_caa_project.ps1` before or after a build when the project shape, copied runtime artifacts, dictionary files, or message catalogs are suspect.
+- Use `scripts/scan_mkmk_log.ps1` after redirecting an `mkmk` build log; classify license/setup failures separately from C++ compile/link failures.
+- Keep helper output as evidence. Do not treat `mkmk` exit code alone as proof of success.
 
 ## Local Assumptions
 
@@ -170,4 +176,5 @@ If CATIA opens as a gray blank frame with no menus/toolbars, suspect startup env
 - Check CATIA log: `%LOCALAPPDATA%\DassaultSystemes\CATTemp\error.log`
 - If the plugin button is missing but CATIA UI is normal, inspect `.dico`, add-in interface, NLS/header ids, and whether the target workbench is active.
 - If CATIA exits normally after launch, verify the user did not close it and inspect the latest `error.log` line for `normal_end` vs `abend`.
+
 

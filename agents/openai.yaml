@@ -1,4 +1,4 @@
 interface:
   display_name: "CATIA CAA Plugin"
-  short_description: "Create, compile, install, and test CATIA V5 CAA demo plugins."
-  default_prompt: "Create or debug a CATIA V5 CAA plugin, then compile, install, and launch it with a safe CATSTART test environment."
+  short_description: "Create, inspect, compile, install, and debug CATIA V5 CAA plugins."
+  default_prompt: "Create, inspect, or debug a CATIA V5 CAA plugin using same-version CAA docs, then compile, install, and launch it with a safe CATSTART test environment."
