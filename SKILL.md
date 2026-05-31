@@ -17,7 +17,7 @@ Use this skill for small CATIA V5 CAA demo plugins and local smoke tests.
 6. Launch CATIA through `CATSTART -env -direnv`, never by bare `CNEXT.exe` with only plugin paths.
 7. Verify in CATIA by opening the target workbench/document type and checking logs, process state, and CATIA `error.log`.
 
-For compact code patterns and local commands, read `references/v5r21-workflow.md`. For task-to-document navigation across ApplicationFrame, Dialog, DialogEngine, Product Structure, GSM, Mechanical Modeler, and Object Specs Modeler topics, read `references/caa-doc-navigation.md`. For Part workbench add-ins, Chinese NLS, model selection agents, GSM point coordinates, pad-to-surface features, or batch geometry safety, read `references/part-workbench-geometry.md`. For symptom-driven debugging, read `references/troubleshooting.md`.
+For compact code patterns and local commands, read `references/v5r21-workflow.md`. For task-to-document navigation across ApplicationFrame, Dialog, DialogEngine, Product Structure, GSM, Mechanical Modeler, and Object Specs Modeler topics, read `references/caa-doc-navigation.md`. For Part workbench add-ins, Chinese NLS, model selection agents, GSM point coordinates, nested geometrical sets, persistent workflow state, pad-to-surface features, external calculation logs, temporary 3D annotations, or batch geometry safety, read `references/part-workbench-geometry.md`. For symptom-driven debugging, read `references/troubleshooting.md`.
 
 ## Bundled Helpers
 

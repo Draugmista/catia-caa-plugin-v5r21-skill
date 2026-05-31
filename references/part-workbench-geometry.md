@@ -73,6 +73,8 @@ agent->SetAgentBehavior(MfPermanentBody | MfLastFeatureSupport | MfRelimitedFeat
   - `CATICkeParmFactory::CreateLength`
   - `CATIGSMFactory::CreatePoint(x, y, z)`
 - CATIA length parameters are stored in meters when created through `CreateLength`; convert external millimeter data with `value / 1000.0`.
+- `CATICkeInst::AsReal()` also returns the internal meter value. When converting `CATIGSMPointCoord::GetCoordinates()` parameter values back into a millimeter-based calculation model, multiply by `1000.0`.
+- `CATIGeometricalElement::GetCharacteristicPoints()` returns geometric `CATMathPoint` coordinates in millimeters. Do not apply the parameter-value conversion again on this fallback path.
 - For old explicit points, `CATIGeometricalElement::GetCharacteristicPoints()` can be used as a fallback. For point features, the bounding-box center can represent the point location.
 - If later logic needs line direction inference, keep endpoint point features instead of only creating an anonymous point-to-point line.
 
@@ -94,6 +96,15 @@ pPart->SetCurrentFeature(bodySpec);
 ```
 
 - Repeated execution should not blindly delete or overwrite existing generated pads. Skip and report duplicates unless the user explicitly asks for replacement.
+
+## Nested Geometrical Sets And Persistent Workflow State
+
+- To create a geometrical set inside a specific parent set, use `CATIMechanicalRootFactory::CreateGeometricalSet(name, parent, output, 0)`.
+- For a geometrical-set parent, `iPosition=-1` may create a sibling after the parent instead of the intended nested child. Verify the resulting tree shape instead of assuming insertion semantics.
+- If workflow state must survive dialog closure, refresh, or CATPart reopen, persist compact stable source identities in the model tree. Do not rely only on dialog memory or encode an ever-growing recursive relationship into display names.
+- Keep display names separate from internal identities. Use readable aliases for users and stable hidden child sets or equivalent model records for direct dependency recovery.
+- For consume-once workflows, validate persisted outputs in dependency order before building the consumed-source set. Corrupt results must not lock inputs; duplicate consumers should be resolved deterministically.
+- Prefer direct references to original source geometry when the workflow expects current source data. Persist copies only when a deliberate snapshot is required.
 
 ## Batch Operation Safety
 
@@ -121,3 +132,20 @@ CATEndTry;
 
 - Keep per-item failure details separate from normal success details. Show success/failure/skipped counts in the dialog and report only important failures in popups.
 - Release raw interfaces on all success and failure paths.
+
+## External Computation Logs
+
+- Keep debug-only logs outside the CATPart. Writing temporary diagnostics into the model tree mixes business state with debugging state.
+- For geometry commands with long calculation chains, log both successful and failed operations. Useful fields include stable input identity, source coordinates, tolerance decisions, intermediate vectors, weighted results, and the last reached feature-creation stage.
+- Refresh logs should include available candidates, consumed identities, and exclusion reasons so model-tree edits and state recovery can be observed without copying source geometry.
+- File logs are best-effort diagnostics. A filesystem write failure may be reported, but it must not block refresh, validation, or geometry creation.
+- On Chinese Windows, a UTF-8 BOM append-only log under CATTemp is a practical default. If the command has a dialog, expose locate-log and clear-log actions for repeatable debugging.
+
+## Temporary 3D Selection Annotations
+
+- Interaction-only 3D text should not be persisted into the CATPart. Create a `CAT3DCustomRep`, add `CAT3DAnnotationTextGP`, and display it temporarily through the current public `CATViewer::AddRep()`.
+- Clean up in this order: `RemoveRep()`, rep `Destroy()`, then viewer `Draw()`. Once the text GP is added to the rep, let the rep own its lifecycle.
+- Make annotation reps non-pickable so helper labels cannot participate in later selection.
+- For labels near a selected point, a `BOTTOM_CENTER` anchor can place text naturally above the point without persistent geometry or scale-dependent coordinate offsets.
+- Constructing `CATMathPointf` directly requires the `YN000MFL` link module. `CATVisualization`, `CATViz`, or `CATMathStream` alone do not resolve that float math constructor.
+- Do not include or call internal `CATVizViewer`. RADE CAA compliance checks reject it. Obtain the public viewer through `CATFrmLayout::GetCurrentLayout()->GetCurrentWindow()->GetViewer()`.

@@ -18,6 +18,8 @@ Use this reference after the normal workflow stalls. Prefer diagnosing the first
 | Only one toolbar button appears when two were created | Toolbar access tree overwrote the first child | Use one `SetAccessChild(toolbar, firstStarter)` and chain later starters with `SetAccessNext(firstStarter, secondStarter)` |
 | Chinese string literals break VS2008 compile | Source encoding mismatch | Prefer `.CATNls` for Chinese UI text; use ASCII C++ literals when build stability matters |
 | Dialog layout constant fails to compile | Constant does not exist in installed V5R21 headers | Check installed header; known supported values include `CATGRID_LEFT`, `CATGRID_RIGHT`, `CATGRID_CENTER`, and `CATGRID_4SIDES` |
+| `CATMathPointf` constructor is unresolved at link time | Float math framework is missing | Add the `YN000MFL` link module and its owning framework prerequisite; visualization modules alone are insufficient |
+| RADE compliance rejects viewer code | Internal `CATVizViewer` was included or called | Use public `CATViewer` obtained from `CATFrmLayout::GetCurrentLayout()->GetCurrentWindow()->GetViewer()` |
 
 ## Layered Diagnosis
 
