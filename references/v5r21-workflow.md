@@ -278,13 +278,28 @@ Then prepend plugin paths to `CATDLLPath`, `CATDictionaryPath`, `CATMsgCatalogPa
 C:\DassaultSystemes\CatiaV5R21\win_b64\code\bin\CATSTART.exe -run "CNEXT.exe" -env <EnvName> -direnv "<Project>\CATEnv"
 ```
 
-## Smoke Test Checklist
+## UI Test Handoff Checklist
+
+Agent actions:
 
 1. Start CATIA through the project launcher.
-2. Confirm `CNEXT` is responding.
-3. Create or open a `CATProduct`.
-4. Enter Product Structure or Assembly workbench.
-5. Locate the toolbar/button by the command NLS label.
-6. Click the button.
-7. Confirm visible behavior, such as a `CATDlgNotify`, and optional test log output.
-8. Inspect `%LOCALAPPDATA%\DassaultSystemes\CATTemp\error.log` if CATIA closes, freezes, or the command is missing.
+2. Confirm `CNEXT` is responding and the main window is present.
+3. Stop interactive automation. Do not click buttons, open documents, switch workbenches, fill dialogs, or operate the CATIA UI.
+4. Notify the user that CATIA is ready for manual testing and provide the relevant manual checks.
+
+User manual checks for a Product Structure toolbar example:
+
+1. Create or open a `CATProduct`.
+2. Enter Product Structure or Assembly workbench.
+3. Locate the toolbar/button by the command NLS label.
+4. Click the button.
+5. Confirm visible behavior, such as a `CATDlgNotify`, and optional test log output.
+
+After the user reports the result, inspect `%LOCALAPPDATA%\DassaultSystemes\CATTemp\error.log` if CATIA closes, freezes, or the command is missing.
+
+## Release Packaging Guardrails
+
+- Treat project-local `CATEnv` files and launcher scripts as development artifacts. They often contain machine-specific absolute paths and should not be shipped unchanged.
+- Generate release environment files and launchers for the install location, or document the path fields that users must replace.
+- Do not package the entire `win_b64` directory as the only deliverable. Select the required DLLs, dictionary files, message catalogs, samples, and instructions explicitly.
+- Include a minimal manual acceptance record for the release package.

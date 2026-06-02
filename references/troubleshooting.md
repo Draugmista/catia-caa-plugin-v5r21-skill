@@ -14,12 +14,15 @@ Use this reference after the normal workflow stalls. Prefer diagnosing the first
 | Link module is ignored as not a direct prerequisite | Missing owning framework in `IdentityCard.h` | Add the owning framework with `AddPrereqComponent("<Framework>", Public);` and rebuild |
 | Dictionary exists in source but not runtime | `mkmk -u` did not copy the dictionary | Copy `<Framework>\CNext\code\dictionary\<Framework>.dico` to `win_b64\code\dictionary` |
 | Message catalog text is missing or header label is wrong | `.CATNls` not copied or id does not match command/header ids | Check source and runtime `resources\msgcatalog`; verify command header id, catalog/module argument, and `.CATNls` names |
+| Updated NLS still shows old text after `mkmk` reports `dummynls` | Existing runtime resource was not overwritten | Compare source and runtime `.CATNls/.CATRsc` hashes or timestamps, then manually sync stale runtime copies |
 | Toolbar text is mojibake on Chinese CATIA | Chinese `.CATNls` was written as UTF-8 but read as ANSI | Re-encode Chinese `.CATNls/.CATRsc` as GBK/ANSI, copy to runtime `msgcatalog`, and restart CATIA |
 | Only one toolbar button appears when two were created | Toolbar access tree overwrote the first child | Use one `SetAccessChild(toolbar, firstStarter)` and chain later starters with `SetAccessNext(firstStarter, secondStarter)` |
 | Chinese string literals break VS2008 compile | Source encoding mismatch | Prefer `.CATNls` for Chinese UI text; use ASCII C++ literals when build stability matters |
 | Dialog layout constant fails to compile | Constant does not exist in installed V5R21 headers | Check installed header; known supported values include `CATGRID_LEFT`, `CATGRID_RIGHT`, `CATGRID_CENTER`, and `CATGRID_4SIDES` |
 | `CATMathPointf` constructor is unresolved at link time | Float math framework is missing | Add the `YN000MFL` link module and its owning framework prerequisite; visualization modules alone are insufficient |
 | RADE compliance rejects viewer code | Internal `CATVizViewer` was included or called | Use public `CATViewer` obtained from `CATFrmLayout::GetCurrentLayout()->GetCurrentWindow()->GetViewer()` |
+| `CATFeatureImportAgent` or `CATFeatureAgent` is unresolved at link time | Selection-agent UI module is missing | Add `CATMechanicalModelerUI` to `LINK_WITH` and verify the owning framework prerequisite |
+| Multiline editor overlaps path inputs, labels, or status rows | Too many mixed controls share one multi-column `CATDlgGridLayout` | Put each input or status row in a `CATDlgFrame`, then stack frames and the multiline editor vertically in one column |
 
 ## Layered Diagnosis
 

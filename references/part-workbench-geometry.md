@@ -65,6 +65,8 @@ agent->SetAgentBehavior(MfPermanentBody | MfLastFeatureSupport | MfRelimitedFeat
 
 - Validate every row index returned by `CATDlgSelectorList::GetSelect(int*, size)` before indexing local arrays.
 - For batch commands, prefer a detailed result pane for normal details and reserve `CATDlgNotify` popups for failures or user-actionable summaries.
+- In V5R21 dialogs that mix path editors, browse buttons, radio buttons, status rows, and a multiline message editor, do not attach every control directly to one multi-column `CATDlgGridLayout`. Automatic expansion can make the multiline editor overlap other cells.
+- Put each path-input row, option area, and read-only status row in its own `CATDlgFrame`, then stack those frames and the multiline editor vertically in a single column. This layout is easier to extend and more stable under V5R21 sizing behavior.
 
 ## GSM Point Creation And Coordinate Reads
 
@@ -102,7 +104,8 @@ pPart->SetCurrentFeature(bodySpec);
 - To create a geometrical set inside a specific parent set, use `CATIMechanicalRootFactory::CreateGeometricalSet(name, parent, output, 0)`.
 - For a geometrical-set parent, `iPosition=-1` may create a sibling after the parent instead of the intended nested child. Verify the resulting tree shape instead of assuming insertion semantics.
 - If workflow state must survive dialog closure, refresh, or CATPart reopen, persist compact stable source identities in the model tree. Do not rely only on dialog memory or encode an ever-growing recursive relationship into display names.
-- Keep display names separate from internal identities. Use readable aliases for users and stable hidden child sets or equivalent model records for direct dependency recovery.
+- Keep display names separate from internal identities and dependencies. When users may rename generated geometrical sets, store stable metadata on the generated set with `CATISpecObject::AddAttribute()`, then use `CATISpecAttrAccess::GetAttrKey()` and `SetString` / `SetInteger` for stable ids, direct-source identities, and schema version.
+- When scanning persisted applicative attributes, validate field presence, type, schema version, and value. Treat display aliases as UI text, not recovery keys.
 - For consume-once workflows, validate persisted outputs in dependency order before building the consumed-source set. Corrupt results must not lock inputs; duplicate consumers should be resolved deterministically.
 - Prefer direct references to original source geometry when the workflow expects current source data. Persist copies only when a deliberate snapshot is required.
 
