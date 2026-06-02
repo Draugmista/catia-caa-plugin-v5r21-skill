@@ -76,3 +76,9 @@ t = targetOrigin - R * sourceOrigin
 - Detect an active assembly document by querying `IID_CATIProduct` on roots returned by `CATIDocRoots::GiveDocRoots()`. Do not depend on `CATIDocDescriptor::GetDocType()` text containing `Product`; V5R21 document-type text can vary by context.
 - Before creating multiple Parts, preflight filenames, target paths, and parent Product conflicts.
 - During execution, record every created instance, document, and output file. If any item fails, roll back in reverse order: remove inserted instances, remove new documents from the session, and delete files created by the current batch.
+
+## Cross-Module Service Boundaries
+
+- Do not export service classes or DTOs with `std::vector`, `std::string`, `std::wstring`, or CATIA handler members directly across CAA add-in DLL boundaries. This widens the C++ ABI surface and can make an otherwise unrelated workbench toolbar fail during add-in discovery.
+- Keep geometry service classes private to their owning module. If another add-in module must call them, expose a narrow C bridge with stable parameters such as opaque handles, integers, wide-character buffers, and `CATDocument*`.
+- Resolve optional cross-module bridges only when the user invokes the feature. Use `LoadLibraryW()` and `GetProcAddress()` instead of a startup-time hard DLL dependency when delayed availability is acceptable.

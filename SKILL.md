@@ -17,7 +17,7 @@ Use this skill for small CATIA V5 CAA demo plugins and local smoke tests.
 6. Launch CATIA through `CATSTART -env -direnv`, never by bare `CNEXT.exe` with only plugin paths.
 7. For UI testing, stop after launch and basic process/window checks. Notify the user to perform all CATIA UI actions manually, then use their observations and CATIA logs for follow-up diagnosis.
 
-For compact code patterns and local commands, read `references/v5r21-workflow.md`. For task-to-document navigation across ApplicationFrame, Dialog, DialogEngine, Product Structure, GSM, Mechanical Modeler, and Object Specs Modeler topics, read `references/caa-doc-navigation.md`. For Part workbench add-ins, Chinese NLS, model selection agents, V5R21 dialog layouts, GSM point coordinates, nested geometrical sets, applicative metadata, persistent workflow state, pad-to-surface features, external calculation logs, temporary 3D annotations, or batch geometry safety, read `references/part-workbench-geometry.md`. For Product Structure CATPart insertion, transactional batch CATPart creation, instance placement, tree refresh, or persistent assembly constraints, read `references/product-structure-assembly.md`. For symptom-driven debugging, read `references/troubleshooting.md`.
+For compact code patterns and local commands, read `references/v5r21-workflow.md`. For task-to-document navigation across ApplicationFrame, Dialog, DialogEngine, Product Structure, GSM, Mechanical Modeler, and Object Specs Modeler topics, read `references/caa-doc-navigation.md`. For Part workbench add-ins, Chinese NLS, classic toolbar icons, model selection agents, V5R21 dialog layouts, GSM point coordinates, nested geometrical sets, applicative metadata, persistent workflow state, pad-to-surface features, external calculation logs, temporary 3D annotations, or batch geometry safety, read `references/part-workbench-geometry.md`. For Product Structure CATPart insertion, transactional batch CATPart creation, cross-module service bridges, instance placement, tree refresh, or persistent assembly constraints, read `references/product-structure-assembly.md`. For symptom-driven debugging, read `references/troubleshooting.md`.
 
 ## Bundled Helpers
 
@@ -157,6 +157,7 @@ Create a project-local env file by copying the base CATIA env and prepending plu
 - `CATDLLPath=<Project>\win_b64\code\bin;C:\DassaultSystemes\CatiaV5R21\win_b64\code\bin`
 - `CATDictionaryPath=<Project>\win_b64\code\dictionary;C:\DassaultSystemes\CatiaV5R21\win_b64\code\dictionary`
 - `CATMsgCatalogPath=<Project>\win_b64\resources\msgcatalog;C:\DassaultSystemes\CatiaV5R21\win_b64\resources\msgcatalog`
+- `CATGraphicPath=<Project>\win_b64\resources\graphic;<Project>\win_b64\resources\graphic\icons;C:\DassaultSystemes\CatiaV5R21\win_b64\resources\graphic`
 - `PATH=<Project>\win_b64\code\bin;C:\DassaultSystemes\CatiaV5R21\win_b64\code\bin;C:\DassaultSystemes\CatiaV5R21\win_b64\code\command;%JAVA_HOME%\bin;%PATH%`
 
 Use a launcher like:

@@ -272,7 +272,7 @@ to:
 <Project>\CATEnv\<EnvName>.txt
 ```
 
-Then prepend plugin paths to `CATDLLPath`, `CATDictionaryPath`, `CATMsgCatalogPath`, and `PATH`. Launch with:
+Then prepend plugin paths to `CATDLLPath`, `CATDictionaryPath`, `CATMsgCatalogPath`, `CATGraphicPath`, and `PATH`. Launch with:
 
 ```bat
 C:\DassaultSystemes\CatiaV5R21\win_b64\code\bin\CATSTART.exe -run "CNEXT.exe" -env <EnvName> -direnv "<Project>\CATEnv"
@@ -301,5 +301,5 @@ After the user reports the result, inspect `%LOCALAPPDATA%\DassaultSystemes\CATT
 
 - Treat project-local `CATEnv` files and launcher scripts as development artifacts. They often contain machine-specific absolute paths and should not be shipped unchanged.
 - Generate release environment files and launchers for the install location, or document the path fields that users must replace.
-- Do not package the entire `win_b64` directory as the only deliverable. Select the required DLLs, dictionary files, message catalogs, samples, and instructions explicitly.
+- Do not package the entire `win_b64` directory as the only deliverable. Select the required DLLs, dictionary files, message catalogs, graphic resources such as `resources\graphic\icons\normal\*.bmp`, samples, and instructions explicitly.
 - Include a minimal manual acceptance record for the release package.

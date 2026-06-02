@@ -23,6 +23,8 @@ Use this reference after the normal workflow stalls. Prefer diagnosing the first
 | RADE compliance rejects viewer code | Internal `CATVizViewer` was included or called | Use public `CATViewer` obtained from `CATFrmLayout::GetCurrentLayout()->GetCurrentWindow()->GetViewer()` |
 | `CATFeatureImportAgent` or `CATFeatureAgent` is unresolved at link time | Selection-agent UI module is missing | Add `CATMechanicalModelerUI` to `LINK_WITH` and verify the owning framework prerequisite |
 | Multiline editor overlaps path inputs, labels, or status rows | Too many mixed controls share one multi-column `CATDlgGridLayout` | Put each input or status row in a `CATDlgFrame`, then stack frames and the multiline editor vertically in one column |
+| Toolbar button icon is missing or stale | `.CATRsc`, BMP runtime copy, or `CATGraphicPath` is stale or incomplete | Verify the extension-free `.CATRsc` resource id, compare source and runtime icon hashes, and ensure project graphic paths precede CATIA native paths |
+| An unrelated workbench toolbar stops initializing after linking another add-in module | Cross-DLL C++ ABI surface or startup-time hard DLL dependency is too broad | Keep service classes module-private; expose a narrow C bridge and resolve optional modules lazily with `LoadLibraryW()` / `GetProcAddress()` |
 
 ## Layered Diagnosis
 

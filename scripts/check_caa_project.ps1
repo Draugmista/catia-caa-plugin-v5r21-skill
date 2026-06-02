@@ -141,4 +141,19 @@ foreach ($frameworkRoot in $frameworkRoots) {
         $runtimeNls = Join-Path $root "win_b64\resources\msgcatalog\$($nls.Name)"
         Test-File "Runtime msgcatalog copy for $($nls.Name)" $runtimeNls | Out-Null
     }
+
+    $sourceRsc = Get-ChildItem -LiteralPath (Join-Path $frameworkRoot "CNext\resources\msgcatalog") -Filter "*.CATRsc" -ErrorAction SilentlyContinue
+    foreach ($rsc in $sourceRsc) {
+        $runtimeRsc = Join-Path $root "win_b64\resources\msgcatalog\$($rsc.Name)"
+        Test-File "Runtime msgcatalog copy for $($rsc.Name)" $runtimeRsc | Out-Null
+    }
+
+    $sourceIconRoot = Join-Path $frameworkRoot "CNext\resources\graphic\icons\normal"
+    if (Test-Path -LiteralPath $sourceIconRoot -PathType Container) {
+        $sourceIcons = Get-ChildItem -LiteralPath $sourceIconRoot -Filter "*.bmp" -ErrorAction SilentlyContinue
+        foreach ($icon in $sourceIcons) {
+            $runtimeIcon = Join-Path $root "win_b64\resources\graphic\icons\normal\$($icon.Name)"
+            Test-File "Runtime toolbar icon copy for $($icon.Name)" $runtimeIcon | Out-Null
+        }
+    }
 }

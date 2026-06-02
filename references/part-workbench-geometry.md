@@ -48,6 +48,19 @@ CATMsgCatalogPath=<Project>\<Framework>\CNext\resources\msgcatalog;<Project>\win
 - For immediate local testing, copying updated `.CATNls` and `.CATRsc` files to `win_b64\resources\msgcatalog` is acceptable, but do not commit `win_b64`.
 - After NLS changes, restart CATIA. If stale toolbar labels remain, consider CATIA toolbar customization/cache state before changing code.
 
+## Classic Toolbar Icons
+
+- Reference command icons from `.CATRsc` with an extension-free resource id:
+
+```text
+HeaderClass.HeaderId.Icon.Normal = "I_MyCommand" ;
+```
+
+- Store committed source icons under `CNext\resources\graphic\icons\normal\`. For immediate local testing, sync them to `win_b64\resources\graphic\icons\normal\`.
+- Ensure project `CATGraphicPath` includes the project's `resources\graphic` and `resources\graphic\icons` paths before CATIA's native graphic paths.
+- CATIA V5R21 official CAA samples use classic `22x22` BMP toolbar icons. For a matching visual style, use 16-color 4bpp indexed BMP files with `#C0C0C0` as the toolbar background color.
+- If starting from generated or high-resolution art, remove the background, resize, and reduce the palette before wiring the icon into `.CATRsc`. Do not point `.CATRsc` directly at a high-resolution PNG.
+
 ## Dialogs And Model-Area Selection
 
 - Pure GUI commands can derive from `CATDlgDialog`.
