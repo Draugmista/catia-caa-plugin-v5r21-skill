@@ -1,5 +1,18 @@
 # CATIA V5R21 CAA Local Workflow
 
+## Contents
+
+- [Start With Installed Documentation](#start-with-installed-documentation)
+- [Minimal Product Structure Button](#minimal-product-structure-button)
+- [Required Files](#required-files)
+- [Imakefile Pattern](#imakefile-pattern)
+- [Build Commands](#build-commands)
+- [Build Preflight](#build-preflight)
+- [Build Failure Triage](#build-failure-triage)
+- [CATSTART Test Environment](#catstart-test-environment)
+- [UI Test Handoff Checklist](#ui-test-handoff-checklist)
+- [Release Packaging Guardrails](#release-packaging-guardrails)
+
 ## Start With Installed Documentation
 
 This machine includes official CAA V5R21 documentation and examples under:
@@ -302,4 +315,6 @@ After the user reports the result, inspect `%LOCALAPPDATA%\DassaultSystemes\CATT
 - Treat project-local `CATEnv` files and launcher scripts as development artifacts. They often contain machine-specific absolute paths and should not be shipped unchanged.
 - Generate release environment files and launchers for the install location, or document the path fields that users must replace.
 - Do not package the entire `win_b64` directory as the only deliverable. Select the required DLLs, dictionary files, message catalogs, graphic resources such as `resources\graphic\icons\normal\*.bmp`, samples, and instructions explicitly.
+- Build a staged release directory first, inspect it for required runtime files, launchers, install notes, and validation evidence, then create the final zip from that staged directory.
+- Prefer launchers that derive plugin paths from the release bundle location. For CATIA install paths or other values that cannot be reliably autodetected, use a small plain-text configuration file such as `install\CATIA_ROOT.txt` before falling back to default path probes.
 - Include a minimal manual acceptance record for the release package.

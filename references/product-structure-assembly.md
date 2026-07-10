@@ -2,6 +2,18 @@
 
 Use this reference when a CATIA V5R21 CAA command inserts external CATPart instances into a Product, positions instances, refreshes the structure tree, or creates persistent assembly constraints.
 
+## Contents
+
+- [Multi-Workbench Project Organization](#multi-workbench-project-organization)
+- [Insert External Or Already-Loaded CATPart References](#insert-external-or-already-loaded-catpart-references)
+- [Position Instances With Auditable Transforms](#position-instances-with-auditable-transforms)
+- [Machine-Matching Contracts](#machine-matching-contracts)
+- [Persistent Product Metadata](#persistent-product-metadata)
+- [Verify And Refresh Product Structure Changes](#verify-and-refresh-product-structure-changes)
+- [Persistent Assembly Constraints](#persistent-assembly-constraints)
+- [Transactional Batch CATPart Creation](#transactional-batch-catpart-creation)
+- [Cross-Module Service Boundaries](#cross-module-service-boundaries)
+
 ## Multi-Workbench Project Organization
 
 - If one plugin framework must support Part and Product Structure / Assembly workbenches, keep one framework and add separate `.m` modules for the different workbench add-ins.
@@ -48,6 +60,14 @@ t = targetOrigin - R * sourceOrigin
 - Use `CATIGSMTool` when scanning ordinary geometrical sets. Do not confuse it with `CATIMechanicalTool`, which represents solid Body tools.
 - For external templates, compare `CATIAlias::GetAlias()`, `CATISpecObject::GetName()`, and `GetDisplayName()` when matching reference elements. On failure, report the actual scanned names.
 
+## Persistent Product Metadata
+
+- Use dynamic applicative attributes for internal workflow state that should persist without becoming user-editable Product properties. Centralize field names and schema versions, validate existing field types, and call `CATISpecObject::Update()` after changes.
+- When business settings must be visible and editable in the Product properties dialog, use the reference Product's `CATIPrdProperties::GetUserProperties()` publisher instead of dynamic applicative attributes. Create missing string parameters through the publisher container's `CATICkeParmFactory`, then publish them with `CATIParmPublisher`.
+- Match these parameters by stable `CATICkeParm::InternalRole()` values; leave `Name()` available for user-facing rename semantics. Reject duplicate roles or an existing parameter of the wrong type.
+- Treat a multi-property write as a transaction: preserve previous values, and on failure restore them and remove parameters created by the current operation before updating the Product again.
+- Neither metadata mechanism necessarily saves the CATProduct document. If the command does not save automatically, tell the user that normal document save is still required for persistence.
+
 ## Verify And Refresh Product Structure Changes
 
 - Do not report assembly success only because `CATIProduct::AddProduct()` returned a handler and `CATIMovable::SetAbsPosition()` succeeded.
@@ -68,6 +88,7 @@ t = targetOrigin - R * sourceOrigin
 ## Transactional Batch CATPart Creation
 
 - Geometry services used by Product-level orchestration should accept an explicit target `CATDocument`. Do not hard-wire a single-Part geometry kernel to the current editor.
+- Define reference-sharing semantics before a Product command inserts instances and writes to their reference CATParts. Instances of one reference share one model tree: when each business node needs independent parameters or a unique calculation leaf, derive a CATPart per node and reject duplicate references during preflight rather than trying to distinguish shared state by display names.
 - To create a CATPart under an active Product without simulating UI actions:
   - call `CATDocumentServices::New("Part")`;
   - use `CATIDocRoots::GiveDocRoots()` to obtain the root `CATIProduct`;
@@ -76,6 +97,8 @@ t = targetOrigin - R * sourceOrigin
 - Detect an active assembly document by querying `IID_CATIProduct` on roots returned by `CATIDocRoots::GiveDocRoots()`. Do not depend on `CATIDocDescriptor::GetDocType()` text containing `Product`; V5R21 document-type text can vary by context.
 - Before creating multiple Parts, preflight filenames, target paths, and parent Product conflicts.
 - During execution, record every created instance, document, and output file. If any item fails, roll back in reverse order: remove inserted instances, remove new documents from the session, and delete files created by the current batch.
+- For a transaction spanning Product instances, assembly constraints, source-CATPart geometry, and visibility changes, track every mutation in one operation record. Complete prechecks first; defer visibility changes until creation succeeds; on failure remove constraints, instances, and geometry in reverse order and restore the original show states. Never leave an inserted instance without its corresponding required Part-side result.
+- When recursively saving a Product structure, save deepest CATPart/CATProduct documents first, then parent Products level by level, with the root Product last. A preorder save can write a parent while it still references old child-document paths, so reopening the assembly may restore deep parts from old files.
 
 ## Cross-Module Service Boundaries
 
