@@ -6,6 +6,8 @@ Use this reference when a CATIA V5R21 CAA command inserts external CATPart insta
 
 - [Multi-Workbench Project Organization](#multi-workbench-project-organization)
 - [Insert External Or Already-Loaded CATPart References](#insert-external-or-already-loaded-catpart-references)
+- [Catalog Snapshot Contracts](#catalog-snapshot-contracts)
+- [Coupled Catalog Recommendations](#coupled-catalog-recommendations)
 - [Position Instances With Auditable Transforms](#position-instances-with-auditable-transforms)
 - [Machine-Matching Contracts](#machine-matching-contracts)
 - [Persistent Product Metadata](#persistent-product-metadata)
@@ -38,6 +40,19 @@ agent->SetOrderedElementType("CATIProduct");
 
 - `CATFeatureImportAgent` requires `CATMechanicalModelerUI` in `LINK_WITH`; `CATDialogEngine` alone can leave `CATFeatureImportAgent` or `CATFeatureAgent` symbols unresolved.
 - If a user attempts to replace a validated selection with an invalid object, clear the cached valid instance immediately. Do not silently execute against an older selection after reporting validation failure.
+
+## Catalog Snapshot Contracts
+
+- When generated geometry depends on an external model catalog, persist a compact snapshot at creation time: stable model id, catalog identity/version, critical dimensions, and interface contract. Propagate the interface fields needed by downstream calculations to the calculation leaf instead of requiring a later live-catalog lookup.
+- When a manual or catalog-free path intentionally produces calculation-only geometry, persist only the lowest contract that path has actually established. Do not copy model or interface snapshots from stale upstream selections: calculation and drawing outputs may remain available, but recommendation, replacement, and physical-assembly gates must require an explicit current snapshot and placement proof.
+- Downstream assembly or replacement must treat the model snapshot as the compatibility contract. It may resolve a replacement from the current catalog or another path, but must compare that candidate against the persisted dimensions and interface before mutation. A catalog relocation must not invalidate an existing model; catalog upgrades must surface a clear drift diagnostic.
+- For a batch that uses external templates, preflight every path, template contract, target dimension, instance name, and Product conflict before its first mutation. Cache each successfully opened reference/document by its canonical model key; do not repeatedly open one template for multiple placements.
+- Record document ownership separately from document use. On failure, remove created constraints, instances, and dependent business geometry in reverse order, then close only documents opened by this operation that were not already present in the user's session. Never close a user-owned document merely because it participated in the batch.
+
+## Coupled Catalog Recommendations
+
+- When a recommendation selects interdependent catalog components, enumerate complete feasible bundles first, preserving the catalog's declared ordering when it represents priority. Validate all mode, dimensional, and interface constraints on the complete bundle.
+- Populate each selector from the projection of those feasible bundles, and recompute the remaining projections after every user choice. Independently filtered dropdowns can present individually valid parts that cannot form a valid assembly together.
 
 ## Position Instances With Auditable Transforms
 
@@ -99,6 +114,9 @@ t = targetOrigin - R * sourceOrigin
 - During execution, record every created instance, document, and output file. If any item fails, roll back in reverse order: remove inserted instances, remove new documents from the session, and delete files created by the current batch.
 - For a transaction spanning Product instances, assembly constraints, source-CATPart geometry, and visibility changes, track every mutation in one operation record. Complete prechecks first; defer visibility changes until creation succeeds; on failure remove constraints, instances, and geometry in reverse order and restore the original show states. Never leave an inserted instance without its corresponding required Part-side result.
 - When recursively saving a Product structure, save deepest CATPart/CATProduct documents first, then parent Products level by level, with the root Product last. A preorder save can write a parent while it still references old child-document paths, so reopening the assembly may restore deep parts from old files.
+- For hierarchy-driven renaming, keep the rename plan separate from the save plan: deduplicate rename assignments by reference `CATIProduct`, but deduplicate save operations by `CATDocument`. A single CATProduct document can contain distinct reference Products, so document-only renaming can incorrectly merge identities. Repeated instances of one reference reuse its first assigned name and do not consume later sibling sequence numbers.
+- Traverse a repeated Product again only when the new occurrence is deeper and can increase descendant save depths. Maintain an active-reference set to reject cycles rather than recursing indefinitely.
+- Do not pass a field of a `std::vector` element by reference into recursive code that may append to that same vector. Reallocation invalidates the reference; copy lightweight values across the recursive boundary or store planner records at stable addresses.
 
 ## Cross-Module Service Boundaries
 

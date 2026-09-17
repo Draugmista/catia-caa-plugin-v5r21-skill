@@ -59,7 +59,7 @@ Keep the full per-item output and summary as evidence.
 Run:
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File scripts\scan_mkmk_log.ps1 -LogPath <Project>\mkmk_build.log
+powershell -ExecutionPolicy Bypass -File scripts\scan_mkmk_log.ps1 -LogPath <BuildLog>
 ```
 
 Interpret the result as:
@@ -89,6 +89,7 @@ Prefer project-local CATIA environment files under `<Project>\CATEnv` so develop
 - Use Chinese for custom UI labels and messages unless the user requests another language or CATIA requires an exact contract string.
 - Keep command ids, header ids, class ids, schema keys, and machine-matching aliases stable ASCII.
 - Use the closest installed V5R21 sample as the starting architecture. Derive `LINK_WITH` and `IdentityCard.h` prerequisites from the owning official framework rather than guessing from class names.
+- Do not remove a CAA prerequisite merely because the list is large or a current build links. Require an evidence chain through the consuming module, `LINK_WITH`, direct APIs, and same-version headers or CAADoc; retain protected runtime/interface companions unless a validated replacement proves removal safe.
 - Keep `.dico` registrations one-to-one with implemented TIE bindings and target-workbench interfaces.
 - Put localized user-facing strings in `.CATNls` when possible. Prove source and catalog encoding compatibility with VS2008 and Chinese CATIA before using non-ASCII C++ literals.
 - Preserve actionable errors and add proportionate logging around add-in initialization, dynamic loading, external processes, save/rollback, and batch item failures.
@@ -103,4 +104,3 @@ Prefer project-local CATIA environment files under `<Project>\CATEnv` so develop
 - Runtime installation: verify copied DLL, dictionary, NLS/RSC, and icon resources as applicable.
 - CATIA launch: report process/window health and provide the exact manual UI checks for the user.
 - Release work: follow `references/v5r21-workflow.md` and the repository release rules; verify the staged minimal package rather than shipping the entire `win_b64` tree.
-

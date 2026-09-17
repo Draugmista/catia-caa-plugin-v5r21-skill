@@ -16,11 +16,14 @@ Use this reference when a CATIA V5R21 CAA command exports model data to a CLI, l
 ## Structured Process Boundary
 
 - Serialize bridge DTOs as UTF-8 JSON with a real writer or DOM API. Do not build JSON by concatenating quotes, commas, and braces.
+- Put an integer top-level `schema_version` in every cross-process JSON contract. Have the producer write it explicitly and the consumer validate it strictly; a transition may map a missing version to one defined legacy version, but an explicit unknown version must fail rather than be inferred from field presence.
+- Cover the contract with tests of both the external model/CLI and the actual CAA serializer. A source-text search for a field cannot prove its serialized location, type, or value.
 - Transfer required engineering semantics as explicit typed fields with fixed units and stable input ordering. Do not make a downstream tool reconstruct scalar values from optional presentation geometry when the authoritative CAA workflow can persist and export those values directly.
 - Keep reusable computation engines on the external-tool side when they already have a stable ABI there. For example, a Rust/PyO3 algorithm should usually stay as a Python extension behind the CLI JSON contract; let CAA scan CATIA candidates, validate identities, and transactionally write geometry instead of loading a Rust DLL directly into the CATIA process.
 - When a downstream generation step lacks a real catalog or selection database, model that gap as an explicit replaceable strategy layer in the external tool. Return placeholder status and typed placeholder fields rather than pushing catalog semantics into the topology solver or CAA geometry writer.
 - On VS2008-era modules, vendor and pin a small header-only implementation that is proven to compile in the RADE build. `RapidJSON 1.1.0` is one observed option, but verify it with the module's real PCH and include order.
 - Launch the child process with `CreateProcessW()`, a hidden window, explicit argument quoting, and redirected output. Capture both process exit status and diagnostic output.
+- When stdout or stderr is redirected to a file, configure Python child processes to emit UTF-8 before any business output. Windows otherwise permits redirected streams to use the active ANSI code page even when the JSON payload is UTF-8. Release verification must run a real redirected subprocess and strictly decode the captured bytes as UTF-8.
 - Treat the temporary JSON and process log as a reproducibility boundary: delete them after success, but retain and report their paths after failure.
 - Separate cross-process diagnostics by purpose: use the plugin's shared log for scan and invocation summaries, redirected stdout/stderr for one-run diagnostics, and a rotating child-tool log for internal validation, adaptation, rendering, and save stages.
 - Retain and rotate the child-tool log across runs. All logging must remain best effort: setup or write failures must not replace the tool's business exit status.
@@ -34,6 +37,7 @@ Use this reference when a CATIA V5R21 CAA command exports model data to a CLI, l
 ## Embedded Python Runtime
 
 - A formal release must not depend on a source-tree `.venv`. Package a runtime and required dependencies, or provide a separately verified installation procedure.
+- Treat the target-Python lockfile as the authoritative transitive dependency set. Export hash-verified requirements from that locked state and make release test and packaging commands fail on lock drift instead of silently rewriting it.
 - When several Python bridge tools ship together, reuse one verified embedded Python runtime and stage each tool's wrapper plus `site-packages` in separate directories.
 - Give every packaged tool its own import smoke test and CLI `--help` gate. After all gates pass, clean `__pycache__` and `*.pyc` again before creating the final archive.
 - Prefer a small wrapper script as the embedded-runtime entry point instead of relying on `python -m package`. The wrapper can add the bundled tool root and `site-packages` to `sys.path` before delegating to the package CLI.

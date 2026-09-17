@@ -169,10 +169,15 @@ OS = Windows_NT
 
 ## Build Commands
 
+Route each complete `mkmk` output to a stable, project-specific directory under `%TEMP%`, outside both the source tree and the release tree. Create the directory if necessary, overwrite the standard log for each build, and scan it immediately; archive a scanned copy only when audit evidence is actually needed.
+
 ```bat
+set "CAA_BUILD_LOG_DIR=%TEMP%\<ProjectName>\build-logs"
+if not exist "%CAA_BUILD_LOG_DIR%" mkdir "%CAA_BUILD_LOG_DIR%"
+if not exist "%CAA_BUILD_LOG_DIR%" exit /b 1
 call C:\DassaultSystemes\caa_work\mytest\test1\ToolsData\VisualStudio2008\vcenv.bat
 cd /d C:\CatiaTest\LYD_GG_DESIGN\<ProjectName>
-C:\DassaultSystemes\RADEv5r21\intel_a\code\command\mkmk.bat -a -u
+C:\DassaultSystemes\RADEv5r21\intel_a\code\command\mkmk.bat -a -u > "%CAA_BUILD_LOG_DIR%\mkmk_build.log" 2>&1
 ```
 
 Equivalent one-shot form:
@@ -317,4 +322,7 @@ After the user reports the result, inspect `%LOCALAPPDATA%\DassaultSystemes\CATT
 - Do not package the entire `win_b64` directory as the only deliverable. Select the required DLLs, dictionary files, message catalogs, graphic resources such as `resources\graphic\icons\normal\*.bmp`, samples, and instructions explicitly.
 - Build a staged release directory first, inspect it for required runtime files, launchers, install notes, and validation evidence, then create the final zip from that staged directory.
 - Prefer launchers that derive plugin paths from the release bundle location. For CATIA install paths or other values that cannot be reliably autodetected, use a small plain-text configuration file such as `install\CATIA_ROOT.txt` before falling back to default path probes.
+- Do not treat “no toolbar and no plugin log” as evidence that the common logger failed: if it lives in a business DLL, discovery, native-dependency, or security-policy failures occur before it can run. Have the release launcher independently record resolved paths, critical-file preflight results, pre-existing `CNEXT` processes, and `CATSTART` output before launch.
+- When a target-machine load failure is not reproducible locally, include a minimal returnable diagnostic collector and integrity baseline. Collect CATIA `error.log`, SideBySide/Application Error events, CATEnv, SHA-256 values for critical DLL/DICO files, and Windows alternate data streams; exclude models, CSV/JSON contents, and unrelated system data.
+- For V5R21-era Windows command shells, keep fixed `.bat` text ASCII. Do not assume UTF-8 Chinese renders correctly or force `chcp 65001` merely for display; provide Chinese operating guidance in a separate text file and add a packaging check that rejects non-ASCII batch content.
 - Include a minimal manual acceptance record for the release package.
